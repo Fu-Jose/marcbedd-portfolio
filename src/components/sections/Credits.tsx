@@ -8,7 +8,9 @@ const Credits = () => {
         target='_blank'
         rel='noreferrer'
         className={
-          isDark ? 'hover:text-primary' : 'hover:text-black transition-colors'
+          isDark
+            ? 'hover:text-primary'
+            : 'hover:text-foreground transition-colors'
         }
       >
         Created by <span className='font-semibold'>JFoo</span>

@@ -30,11 +30,11 @@ const Hero: React.FC = () => {
       <div className='relative overflow-hidden rounded-2xl border border-border/70 bg-card/70'>
         <img
           src='/images/hero.webp'
-          srcSet='/images/hero-600.webp 600w, /images/hero.webp 1200w'
-          sizes='(max-width: 640px) 100vw, 1200px'
-          alt='Marco Bedini rehearsing with a band in the studio'
-          width={1200}
-          height={900}
+          srcSet='/images/hero-600.webp 600w, /images/hero.webp 1600w'
+          sizes='(max-width: 640px) 100vw, 1600px'
+          alt='Studio setup with headphones and audio interface on a desk'
+          width={1600}
+          height={1200}
           fetchPriority='high'
           className='h-65 w-full object-cover sm:h-80 md:h-95'
         />
