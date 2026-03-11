@@ -1,7 +1,8 @@
-import React from 'react';
-import InteractivePlayer from './InteractivePlayer';
+import React, { lazy } from 'react';
 import { useLanguage } from '../../lib/i18n';
 import { useTheme } from '../../lib/theme';
+const InteractivePlayer = lazy(() => import('./InteractivePlayer'));
+const SoundCloudGrid = lazy(() => import('../sections/SoundCloudGrid'));
 
 const SPOTIFY_TRACKS = [
   {
@@ -126,6 +127,8 @@ const WorkGallery: React.FC = () => {
           ))}
         </div>
       </section>
+
+      <SoundCloudGrid />
 
       {/* Credits — Composition & Sound Design */}
       <section className='mx-auto mt-16 max-w-6xl space-y-4 px-4 md:px-6'>

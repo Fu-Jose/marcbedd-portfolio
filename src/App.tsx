@@ -1,11 +1,13 @@
-import Navbar from "./components/layout/Navbar";
-import Hero from "./components/sections/Hero";
-import About from "./components/sections/About";
-import SoundCloudGrid from "./components/sections/SoundCloudGrid";
-import Footer from "./components/layout/Footer";
-import WorkGallery from "./components/player/WorkGallery";
-import { LanguageProvider } from "./lib/i18n";
-import { ThemeProvider } from "./lib/theme";
+import { lazy, Suspense } from 'react';
+import Navbar from './components/layout/Navbar';
+import Hero from './components/sections/Hero';
+import { LanguageProvider } from './lib/i18n';
+import { ThemeProvider } from './lib/theme';
+import Credits from './components/sections/Credits';
+
+const About = lazy(() => import('./components/sections/About'));
+const WorkGallery = lazy(() => import('./components/player/WorkGallery'));
+const Footer = lazy(() => import('./components/layout/Footer'));
 
 export function App() {
   return (
@@ -13,11 +15,17 @@ export function App() {
       <LanguageProvider>
         <>
           <Navbar />
-          <Hero />
-          <About />
-          <WorkGallery />
-          <SoundCloudGrid />
-          <Footer />
+          <main>
+            <Hero />
+            <Suspense fallback={null}>
+              <About />
+              <WorkGallery />
+            </Suspense>
+          </main>
+          <Suspense fallback={null}>
+            <Footer />
+          </Suspense>
+          <Credits />
         </>
       </LanguageProvider>
     </ThemeProvider>

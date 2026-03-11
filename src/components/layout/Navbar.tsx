@@ -21,6 +21,8 @@ const Navbar: React.FC = () => {
           <img
             src={isDark ? '/logo/WHITE.svg' : '/logo/BLACK.svg'}
             alt='Marcbedd logo'
+            width={36}
+            height={36}
             className='h-8 w-auto md:h-9'
           />
           <span className='text-sm font-semibold tracking-[0.24em] uppercase text-foreground'>
@@ -45,6 +47,7 @@ const Navbar: React.FC = () => {
             <button
               type='button'
               onClick={() => setLanguage('en')}
+              aria-label='Switch to English'
               className={[
                 'rounded-full px-2 py-1 text-[10px] font-semibold',
                 language === 'en'
@@ -57,6 +60,7 @@ const Navbar: React.FC = () => {
             <button
               type='button'
               onClick={() => setLanguage('it')}
+              aria-label="Passa all'italiano"
               className={[
                 'rounded-full px-2 py-1 text-[10px] font-semibold',
                 language === 'it'

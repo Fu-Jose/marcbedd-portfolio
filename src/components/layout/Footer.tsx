@@ -88,8 +88,14 @@ const Footer: React.FC = () => {
       <div className='mx-auto grid max-w-6xl gap-8 px-4 md:grid-cols-2 md:px-6'>
         <div className='relative overflow-hidden rounded-2xl border border-border/70 bg-card/70'>
           <img
-            src='/images/pexels-chuck-3587496.jpg'
+            src='/images/studio.webp'
+            srcSet='/images/studio-600.webp 600w, /images/studio.webp 1200w'
+            sizes='(max-width: 768px) 100vw, 50vw'
             alt='Studio desk with laptop and mixing console'
+            width={800}
+            height={1200}
+            loading='lazy'
+            decoding='async'
             className='h-full w-full object-cover'
           />
           <div className='pointer-events-none absolute inset-0 bg-linear-to-t from-background/80 via-background/0 to-transparent' />

@@ -28,6 +28,7 @@ const StemRow: React.FC<StemRowProps> = ({
       <button
         type='button'
         onClick={onToggleMute}
+        aria-label={muted ? `Unmute ${label}` : `Mute ${label}`}
         className={[
           'inline-flex h-8 w-8 items-center justify-center rounded-full border text-[11px] font-semibold uppercase tracking-[0.16em] transition',
           muted
@@ -52,6 +53,7 @@ const StemRow: React.FC<StemRowProps> = ({
           {label}
         </p>
         <input
+          aria-label={`${label} volume`}
           type='range'
           min={0}
           max={1}

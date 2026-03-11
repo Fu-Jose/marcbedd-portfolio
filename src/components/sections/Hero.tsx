@@ -2,9 +2,6 @@ import React from 'react';
 import { useLanguage } from '../../lib/i18n';
 import { useTheme } from '../../lib/theme';
 
-const HERO_IMAGE_SRC =
-  '/images/587010948_18166044031376448_3295146918336194279_n.jpg';
-
 const getCopy = (language: 'en' | 'it') =>
   language === 'it'
     ? {
@@ -32,9 +29,14 @@ const Hero: React.FC = () => {
     <section className='mx-auto mt-16 max-w-6xl px-4 md:px-6'>
       <div className='relative overflow-hidden rounded-2xl border border-border/70 bg-card/70'>
         <img
-          src={HERO_IMAGE_SRC}
+          src='/images/hero.webp'
+          srcSet='/images/hero-600.webp 600w, /images/hero.webp 1200w'
+          sizes='(max-width: 640px) 100vw, 1200px'
           alt='Marco Bedini rehearsing with a band in the studio'
-          className='h-[260px] w-full object-cover sm:h-[320px] md:h-[380px]'
+          width={1200}
+          height={900}
+          fetchPriority='high'
+          className='h-65 w-full object-cover sm:h-80 md:h-95'
         />
 
         {/* dark left-to-right gradient, ideal for white text */}

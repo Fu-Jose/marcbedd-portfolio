@@ -49,13 +49,12 @@ const SoundCloudGrid: React.FC = () => {
       </header>
 
       <div className='overflow-hidden rounded-2xl border border-border/70 bg-card/80 shadow-sm'>
-        <div className='relative h-[640px] sm:h-[520px] md:h-[460px]'>
+        <div className='relative h-160 sm:h-130 md:h-115'>
           <iframe
             title='Marco Bedini – SoundCloud'
             className='absolute inset-0 h-full w-full'
-            scrolling='no'
-            frameBorder='no'
             allow='autoplay'
+            loading='lazy'
             src={widgetUrl}
           />
         </div>

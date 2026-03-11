@@ -76,8 +76,14 @@ const About: React.FC = () => {
     >
       <div className='relative overflow-hidden rounded-2xl border border-border/70 bg-card/70 md:w-1/2'>
         <img
-          src='/images/624775413_18171611545376448_7878141069178213613_n.jpg'
+          src='/images/portrait.webp'
+          srcSet='/images/portrait-400.webp 400w, /images/portrait.webp 800w'
+          sizes='(max-width: 768px) 100vw, 50vw'
           alt='Portrait of Marco Bedini holding a saxophone'
+          width={800}
+          height={998}
+          loading='lazy'
+          decoding='async'
           className='h-full w-full object-cover'
         />
         <div className='pointer-events-none absolute inset-0 bg-linear-to-t to-transparent' />
