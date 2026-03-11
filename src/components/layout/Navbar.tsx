@@ -17,9 +17,9 @@ const Navbar: React.FC = () => {
   return (
     <header className='sticky top-0 z-30 w-full border-b border-border/60 bg-background/80 backdrop-blur-xl'>
       <nav className='mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 md:px-6'>
-        <a href='#top' className='flex items-center gap-3'>
+        <a href='#top' className='flex items-center gap-4'>
           <img
-            src={isDark ? '/logo/POSITIVO BIANCO.svg' : '/logo/POSITIVO.svg'}
+            src={isDark ? '/logo/WHITE.svg' : '/logo/BLACK.svg'}
             alt='Marcbedd logo'
             className='h-8 w-auto md:h-9'
           />

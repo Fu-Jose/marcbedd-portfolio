@@ -41,11 +41,6 @@ const AVATAR_STEMS: Stem[] = [
     file: 'https://res.cloudinary.com/donxjonx/video/upload/f_auto,q_auto/v1773067177/marcbedd/audio/avatar/Thanator_Music_and_Texture_sb0qep.mp3',
   },
   {
-    id: 'avatar-music',
-    label: 'Music',
-    file: 'https://res.cloudinary.com/donxjonx/video/upload/f_auto,q_auto/v1773067177/marcbedd/audio/avatar/Thanator_Music_ufc1z6.mp3',
-  },
-  {
     id: 'avatar-roar',
     label: 'Roar SFX',
     file: 'https://res.cloudinary.com/donxjonx/video/upload/f_auto,q_auto/v1773067178/marcbedd/audio/avatar/Thanator_Roar_SD_lcx40w.mp3',

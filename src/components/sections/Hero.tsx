@@ -9,12 +9,12 @@ const getCopy = (language: 'en' | 'it') =>
   language === 'it'
     ? {
         kicker: 'Marco Bedini',
-        title: 'Sound designer cinematografico e sassofonista per Treetops.',
+        title: 'Sound designer e foley artist per cinema e videogiochi.',
         body: 'Creo paesaggi sonori e mix dinamici per immagini, trailer e progetti interattivi, con una prospettiva che nasce dall’esperienza sul palco e in studio.',
       }
     : {
         kicker: 'Marco Bedini',
-        title: 'Cinematic sound designer and saxophonist for Treetops.',
+        title: 'Sound designer and foley artist for cinema and videogames.',
         body: 'Designing detailed soundscapes and dynamic mixes for picture, trailers and interactive projects, informed by years of experience on stage and in the studio.',
       };
 
