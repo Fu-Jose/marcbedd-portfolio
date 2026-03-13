@@ -1,15 +1,19 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { Loader2, Play } from 'lucide-react';
+import * as Tone from 'tone';
 import VideoDisplay from './VideoDisplay';
 import MixerPanel from './MixerPanel';
+import { useTonePlayer } from './useTonePlayer';
 import { useLanguage } from '../../lib/i18n';
 import { useTheme } from '../../lib/theme';
 
-type Stem = {
-  id: string;
-  label: string;
-  file: string;
-};
-
+type Stem = { id: string; label: string; file: string };
 type PlaylistItem = {
   id: string;
   title: string;
@@ -18,11 +22,7 @@ type PlaylistItem = {
   videoSrc: string;
   stems: Stem[];
 };
-
-type StemState = {
-  volume: number;
-  muted: boolean;
-};
+type StemState = { volume: number; muted: boolean };
 
 const AVATAR_STEMS: Stem[] = [
   {
@@ -46,7 +46,6 @@ const AVATAR_STEMS: Stem[] = [
     file: 'https://res.cloudinary.com/donxjonx/video/upload/f_auto,q_auto/v1773067178/marcbedd/audio/avatar/Thanator_Roar_SD_lcx40w.mp3',
   },
 ];
-
 const LDR_VACUUM_STEMS: Stem[] = [
   {
     id: 'vacuum-bot',
@@ -54,7 +53,6 @@ const LDR_VACUUM_STEMS: Stem[] = [
     file: 'https://res.cloudinary.com/donxjonx/video/upload/f_auto,q_auto/v1773067182/marcbedd/audio/vacuumbot/Vacuubot_vs_Human_LDR_mix2_bjsvng.mp3',
   },
 ];
-
 const LDR_FROST_STEMS: Stem[] = [
   {
     id: 'LDR-Frost',
@@ -62,7 +60,6 @@ const LDR_FROST_STEMS: Stem[] = [
     file: 'https://res.cloudinary.com/donxjonx/video/upload/f_auto,q_auto/v1773067188/marcbedd/audio/frost/Frost_Whale_Run_audio_1_minute_hpdroe.mp3',
   },
 ];
-
 const LDR_IKRAN_STEMS: Stem[] = [
   {
     id: 'avatar-ikran',
@@ -70,7 +67,6 @@ const LDR_IKRAN_STEMS: Stem[] = [
     file: 'https://res.cloudinary.com/donxjonx/video/upload/f_auto,q_auto/v1773067188/marcbedd/audio/ikran/ONE_MINUTE_IKRAN_sound_design_music_2_o1yekf.mp3',
   },
 ];
-
 const BO6_STEMS: Stem[] = [
   {
     id: 'bo6-trailer',
@@ -120,7 +116,7 @@ const DEMO_PLAYLIST: PlaylistItem[] = [
   },
   {
     id: 'bo6-trailer',
-    title: 'Black Ops 6 - Trailer',
+    title: 'Black Ops 6 – Trailer',
     description: 'Separate stems available on request.',
     descriptionIt: 'Stem separati disponibili su richiesta.',
     videoSrc:
@@ -129,17 +125,9 @@ const DEMO_PLAYLIST: PlaylistItem[] = [
   },
 ];
 
-const buildInitialStemState = (
-  playlist: PlaylistItem[],
-): Record<string, StemState> => {
+const buildStemState = (stems: Stem[]): Record<string, StemState> => {
   const map: Record<string, StemState> = {};
-  for (const item of playlist) {
-    for (const stem of item.stems) {
-      if (!map[stem.id]) {
-        map[stem.id] = { volume: 1, muted: false };
-      }
-    }
-  }
+  for (const s of stems) map[s.id] = { volume: 1, muted: false };
   return map;
 };
 
@@ -147,132 +135,147 @@ const InteractivePlayer: React.FC = () => {
   const { language } = useLanguage();
   const { isDark } = useTheme();
   const accentClass = isDark ? 'text-amber-400' : 'text-orange-600';
-  const [playlist] = useState<PlaylistItem[]>(DEMO_PLAYLIST);
+
   const [currentIndex, setCurrentIndex] = useState(0);
+  const currentItem = useMemo(
+    () => DEMO_PLAYLIST[currentIndex],
+    [currentIndex],
+  );
   const [stemState, setStemState] = useState<Record<string, StemState>>(() =>
-    buildInitialStemState(DEMO_PLAYLIST),
+    buildStemState(currentItem.stems),
   );
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const audioRefs = useRef<Record<string, HTMLAudioElement | null>>({});
+  const rafRef = useRef<number | undefined>(undefined);
+  const isSeekingRef = useRef(false);
 
-  const currentItem = useMemo(
-    () => playlist[currentIndex],
-    [playlist, currentIndex],
-  );
+  const {
+    isLoading,
+    isUnlocked,
+    loadStems,
+    unlock,
+    transportPlay,
+    transportPause,
+    transportStop,
+    transportSeek,
+    setStemVolume,
+    setStemMuted,
+  } = useTonePlayer();
 
   useEffect(() => {
-    Object.entries(stemState).forEach(([stemId, state]) => {
-      const audio = audioRefs.current[stemId];
-      if (!audio) return;
-      audio.volume = state.muted ? 0 : state.volume;
-    });
-  }, [stemState]);
+    void loadStems(currentItem.id, currentItem.stems, stemState);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentItem.id]);
 
-  const handleSelectItem = (index: number) => {
-    const video = videoRef.current;
-
-    Object.values(audioRefs.current).forEach((audio) => {
-      if (audio) {
-        audio.pause();
-        audio.currentTime = 0;
+  const startRaf = useCallback(() => {
+    const loop = () => {
+      const video = videoRef.current;
+      if (video && !isSeekingRef.current) {
+        const tSec = Tone.getTransport().seconds;
+        if (Math.abs(video.currentTime - tSec) > 0.08) video.currentTime = tSec;
       }
-    });
+      rafRef.current = requestAnimationFrame(loop);
+    };
+    if (rafRef.current == null) rafRef.current = requestAnimationFrame(loop);
+  }, []);
 
-    if (video) {
-      const shouldAutoplay = !video.paused;
-      video.pause();
-      video.currentTime = 0;
-      setCurrentIndex(index);
-
-      window.setTimeout(() => {
-        if (!videoRef.current) return;
-        if (shouldAutoplay) {
-          videoRef.current.play().catch(() => {});
-        }
-      }, 50);
-    } else {
-      setCurrentIndex(index);
+  const stopRaf = useCallback(() => {
+    if (rafRef.current != null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = undefined;
     }
-  };
+  }, []);
 
-  const syncAudioToVideoTime = () => {
+  useEffect(() => () => stopRaf(), [stopRaf]);
+
+  const handleStartExperience = useCallback(async () => {
+    await unlock();
     const video = videoRef.current;
     if (!video) return;
-    const t = video.currentTime;
-    Object.values(audioRefs.current).forEach((audio) => {
-      if (!audio) return;
-      const diff = Math.abs(audio.currentTime - t);
-      if (diff > 0.1) {
-        audio.currentTime = t;
+    await video.play().catch(() => {});
+    transportPlay(video.currentTime);
+    startRaf();
+  }, [unlock, transportPlay, startRaf]);
+
+  const handlePlay = useCallback(() => {
+    if (!isUnlocked) {
+      void unlock().then(() => {
+        const video = videoRef.current;
+        if (!video) return;
+        transportPlay(video.currentTime);
+        startRaf();
+      });
+      return;
+    }
+    const video = videoRef.current;
+    if (!video) return;
+    transportPlay(video.currentTime);
+    startRaf();
+  }, [isUnlocked, unlock, transportPlay, startRaf]);
+
+  const handlePause = useCallback(() => {
+    transportPause();
+    stopRaf();
+  }, [transportPause, stopRaf]);
+  const handleSeeking = useCallback(() => {
+    isSeekingRef.current = true;
+  }, []);
+  const handleSeeked = useCallback(() => {
+    isSeekingRef.current = false;
+    const video = videoRef.current;
+    if (video) transportSeek(video.currentTime);
+  }, [transportSeek]);
+  const handleTimeUpdate = useCallback(() => {}, []);
+  const handleRateChange = useCallback(() => {
+    const video = videoRef.current;
+    if (video && video.playbackRate !== 1) video.playbackRate = 1;
+  }, []);
+
+  const handleSelectItem = useCallback(
+    (index: number) => {
+      if (index === currentIndex) return;
+      stopRaf();
+      transportStop();
+      const video = videoRef.current;
+      if (video) {
+        video.pause();
+        video.currentTime = 0;
       }
-    });
-  };
+      setStemState(buildStemState(DEMO_PLAYLIST[index].stems));
+      setCurrentIndex(index);
+    },
+    [currentIndex, transportStop, stopRaf],
+  );
 
-  const handlePlay = () => {
-    const video = videoRef.current;
-    if (!video) return;
-    const t = video.currentTime;
-    Object.values(audioRefs.current).forEach((audio) => {
-      if (!audio) return;
-      audio.currentTime = t;
-      audio.playbackRate = video.playbackRate;
-      audio.play().catch(() => {});
-    });
-  };
+  const handleToggleMute = useCallback(
+    (stemId: string) => {
+      setStemState((prev) => {
+        const muted = !prev[stemId]?.muted;
+        setStemMuted(stemId, muted);
+        return {
+          ...prev,
+          [stemId]: { volume: prev[stemId]?.volume ?? 1, muted },
+        };
+      });
+    },
+    [setStemMuted],
+  );
 
-  const handlePause = () => {
-    Object.values(audioRefs.current).forEach((audio) => {
-      if (!audio) return;
-      audio.pause();
-    });
-  };
-
-  const handleTimeUpdate = () => {
-    syncAudioToVideoTime();
-  };
-
-  const handleSeeking = () => {
-    syncAudioToVideoTime();
-  };
-
-  const handleSeeked = () => {
-    syncAudioToVideoTime();
-  };
-
-  const handleRateChange = () => {
-    const video = videoRef.current;
-    if (!video) return;
-    Object.values(audioRefs.current).forEach((audio) => {
-      if (!audio) return;
-      audio.playbackRate = video.playbackRate;
-    });
-  };
-
-  const handleToggleMute = (stemId: string) => {
-    setStemState((prev) => ({
-      ...prev,
-      [stemId]: {
-        volume: prev[stemId]?.volume ?? 1,
-        muted: !prev[stemId]?.muted,
-      },
-    }));
-  };
-
-  const handleChangeVolume = (stemId: string, volume: number) => {
-    setStemState((prev) => ({
-      ...prev,
-      [stemId]: {
-        volume,
-        muted: volume === 0 ? true : (prev[stemId]?.muted ?? false),
-      },
-    }));
-  };
+  const handleChangeVolume = useCallback(
+    (stemId: string, volume: number) => {
+      const muted = volume === 0;
+      setStemVolume(stemId, volume);
+      setStemMuted(stemId, muted);
+      setStemState((prev) => ({ ...prev, [stemId]: { volume, muted } }));
+    },
+    [setStemVolume, setStemMuted],
+  );
 
   return (
-    <section className='mx-auto flex w-full max-w-6xl flex-col gap-6 rounded-2xl bg-card/80 p-4 shadow-lg ring-1 ring-border md:p-6 lg:flex-row'>
+    <section className='relative mx-auto flex w-full max-w-6xl flex-col gap-6 rounded-2xl bg-card/80 p-4 shadow-lg ring-1 ring-border md:p-6 lg:flex-row'>
       <div className='flex min-w-0 flex-1 flex-col gap-4'>
         <VideoDisplay
+          key={currentIndex}
           ref={videoRef}
           src={currentItem.videoSrc}
           title={currentItem.title}
@@ -283,13 +286,19 @@ const InteractivePlayer: React.FC = () => {
           onSeeked={handleSeeked}
           onRateChange={handleRateChange}
         />
-
-        <MixerPanel
-          stems={currentItem.stems}
-          stemState={stemState}
-          onToggleMute={handleToggleMute}
-          onChangeVolume={handleChangeVolume}
-        />
+        {isLoading ? (
+          <div className='flex items-center gap-2.5 rounded-2xl border border-border/70 bg-background/80 p-4 text-xs text-muted-foreground'>
+            <Loader2 className='h-3.5 w-3.5 animate-spin' />
+            {language === 'it' ? 'Caricamento audio…' : 'Loading audio…'}
+          </div>
+        ) : (
+          <MixerPanel
+            stems={currentItem.stems}
+            stemState={stemState}
+            onToggleMute={handleToggleMute}
+            onChangeVolume={handleChangeVolume}
+          />
+        )}
       </div>
 
       <aside className='mt-2 w-full border-t border-border/70 pt-4 lg:mt-0 lg:w-80 lg:border-l lg:border-t-0 lg:pl-4'>
@@ -302,7 +311,7 @@ const InteractivePlayer: React.FC = () => {
           {language === 'it' ? 'Selezione lavori' : 'Selected work'}
         </h2>
         <div className='flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible lg:pb-0'>
-          {playlist.map((item, index) => {
+          {DEMO_PLAYLIST.map((item, index) => {
             const isActive = index === currentIndex;
             return (
               <button
@@ -310,7 +319,7 @@ const InteractivePlayer: React.FC = () => {
                 type='button'
                 onClick={() => handleSelectItem(index)}
                 className={[
-                  'flex w-[220px] flex-shrink-0 flex-col items-start gap-1 rounded-xl border px-3 py-2 text-left text-sm transition lg:w-auto lg:flex-shrink',
+                  'flex w-55 shrink-0 flex-col items-start gap-1 rounded-xl border px-3 py-2 text-left text-sm transition lg:w-auto lg:shrink',
                   isActive
                     ? 'border-primary bg-primary/10 shadow-sm'
                     : 'border-border/70 bg-background/60 hover:border-primary/40 hover:bg-muted/70',
@@ -349,20 +358,33 @@ const InteractivePlayer: React.FC = () => {
         </div>
       </aside>
 
-      {currentItem.stems.map((stem) => (
-        <audio
-          key={stem.id}
-          ref={(el) => {
-            audioRefs.current[stem.id] = el;
-            if (el) {
-              const state = stemState[stem.id];
-              el.volume = state?.muted ? 0 : (state?.volume ?? 1);
-            }
+      {!isUnlocked && (
+        <div
+          role='button'
+          tabIndex={0}
+          aria-label={language === 'it' ? 'Avvia audio' : 'Start audio'}
+          className='absolute inset-0 z-20 flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl bg-black/65 backdrop-blur-sm'
+          onClick={handleStartExperience}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ')
+              void handleStartExperience();
           }}
-          src={stem.file}
-          preload='auto'
-        />
-      ))}
+        >
+          <div className='rounded-full bg-white/10 p-5 ring-1 ring-white/25 transition hover:bg-white/20'>
+            <Play className='h-10 w-10 fill-white text-white' />
+          </div>
+          <div className='text-center'>
+            <p className='text-sm font-semibold uppercase tracking-[0.2em] text-white'>
+              {language === 'it' ? 'Avvia audio' : 'Start audio'}
+            </p>
+            <p className='mt-1 text-[11px] text-white/50'>
+              {language === 'it'
+                ? 'Tocca per abilitare la riproduzione'
+                : 'Tap to enable playback'}
+            </p>
+          </div>
+        </div>
+      )}
     </section>
   );
 };
