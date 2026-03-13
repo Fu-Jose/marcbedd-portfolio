@@ -17,7 +17,7 @@ const About: React.FC = () => {
       ? {
           label: 'Chi sono',
           title: 'Sound designer al servizio del racconto.',
-          p1: 'Sono Marco Bedini, sound designer e foley artist per film, trailer e videogiochi. Mi specializzo nella costruzione di mondi sonori immersivi che respirano con le immagini, integrando spesso il mio background da sassofonista nelle produzioni.',
+          p1: 'Sono Marco Bedini, sound designer e foley artist per film, trailer e videogiochi. Mi specializzo nella costruzione di mondi sonori immersivi che respirano con le immagini, integrando spesso il mio background da sassofonista e pianista nelle produzioni.',
           p2: "Dalla pulizia del dialogo alla consegna finale, ho gestito l'intera catena audio per cortometraggi indipendenti e spot pubblicitari. Nel 2024 ho composto la musica per un cortometraggio del 48 Hour Film Project — prodotto in 48 ore — che ha vinto come Miglior Cortometraggio in Italia.",
           techTitle: 'Competenze tecniche',
           bullets: [
@@ -43,7 +43,7 @@ const About: React.FC = () => {
       : {
           label: 'About',
           title: 'Sound designer crafting narrative-driven mixes.',
-          p1: "I'm Marco Bedini, a sound designer and foley artist working across films, trailers, and games. I specialize in building immersive sound worlds that breathe with the picture, often weaving my background as a saxophonist into my productions.",
+          p1: "I'm Marco Bedini, a sound designer and foley artist working across films, trailers, and games. I specialize in building immersive sound worlds that breathe with the picture, often weaving my background as a saxophonist and pianist into my productions.",
           p2: "From dialogue clean-up to final delivery, I've handled the full audio chain for independent shorts and commercial spots. In 2024, I composed the music for a 48 Hour Film Project short — made entirely in 48 hours — that won Best Short Film in Italy.",
           techTitle: 'Technical Expertise',
           bullets: [

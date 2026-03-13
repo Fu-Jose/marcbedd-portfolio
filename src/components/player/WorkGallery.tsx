@@ -39,8 +39,12 @@ const CREDITS = [
   {
     titleIt: 'Di Marketing e Miracoli',
     titleEn: 'Di Marketing e Miracoli',
-    detailIt: 'Cortometraggio di Serena Lazzaro',
-    detailEn: 'Short film by Serena Lazzaro',
+    detailIt: 'Cortometraggio di Serena Lazzaro ',
+    detailEn: 'Short film by Serena Lazzaro ',
+    link: {
+      text: '(Collab. Treetops)',
+      href: 'https://open.spotify.com/artist/5sI7xuGvcod5NiR2YD3PjJ',
+    },
   },
 ];
 
@@ -146,16 +150,38 @@ const WorkGallery: React.FC = () => {
           </h2>
         </header>
         <ul className='divide-y divide-border/50 rounded-2xl border border-border/70 bg-card/80 shadow-sm'>
-          {CREDITS.map((item) => (
-            <li key={item.titleEn} className='flex flex-col gap-0.5 px-4 py-3'>
-              <span className='text-sm font-medium text-foreground'>
-                {language === 'it' ? item.titleIt : item.titleEn}
-              </span>
-              <span className='text-xs text-muted-foreground'>
-                {language === 'it' ? item.detailIt : item.detailEn}
-              </span>
-            </li>
-          ))}
+          {CREDITS.map((item) => {
+            const detail = language === 'it' ? item.detailIt : item.detailEn;
+            const parts = item.link ? detail.split(item.link.text) : null;
+            return (
+              <li
+                key={item.titleEn}
+                className='flex flex-col gap-0.5 px-4 py-3'
+              >
+                <span className='text-sm font-medium text-foreground'>
+                  {language === 'it' ? item.titleIt : item.titleEn}
+                </span>
+                <span className='text-xs text-muted-foreground'>
+                  {parts && item.link ? (
+                    <>
+                      {parts[0]}
+                      <a
+                        href={item.link.href}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        className={accentClass}
+                      >
+                        {item.link.text}
+                      </a>
+                      {parts[1]}
+                    </>
+                  ) : (
+                    detail
+                  )}
+                </span>
+              </li>
+            );
+          })}
         </ul>
       </section>
     </div>
