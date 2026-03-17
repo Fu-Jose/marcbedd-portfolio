@@ -17,10 +17,16 @@ const SPOTIFY_TRACKS = [
 
 const CREDITS = [
   {
+    titleIt: 'Threesome - non la solita storia a tre',
+    titleEn: 'Threesome - non la solita storia a tre',
+    detailIt: 'Musica originale, Film di Vito Molinari e Diego Dionisi',
+    detailEn: 'Original soundtrack, Film by Vito Molinari and Diego Dionisi',
+  },
+  {
     titleIt: 'Compagne Di Strada – Beatrice Miano',
     titleEn: 'Compagne Di Strada – Beatrice Miano',
     detailIt:
-      'Traccia originale e sound design; Le Bestevem, prod. Antonio Roman',
+      'Musica originale e sound design; Le Bestevem, prod. Antonio Roman',
     detailEn:
       'Original track and sound design; Le Bestevem, prod. by Antonio Roman',
   },

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../../lib/i18n';
 import { useTheme } from '../../lib/theme';
+import { MailIcon } from 'lucide-react';
+import { SiInstagram, SiYoutube } from '@icons-pack/react-simple-icons';
 
 const WEB3FORMS_KEY =
   (import.meta.env.VITE_WEB3FORMS_KEY as string) ?? 'your-access-key-here';
@@ -192,6 +194,35 @@ const Footer: React.FC = () => {
               {status === 'loading' ? copy.sending : copy.button}
             </button>
           </form>
+
+          <div className='flex gap-4'>
+            <a
+              href={'https://www.instagram.com/marcbedd/'}
+              target='_blank'
+              rel='noopener noreferrer'
+              className={accentClass}
+            >
+              <SiInstagram />
+            </a>
+
+            <a
+              href={'mailto:marcobedini777@gmail.com'}
+              target='_blank'
+              rel='noopener noreferrer'
+              className={accentClass}
+            >
+              <MailIcon />
+            </a>
+
+            <a
+              href={'https://www.youtube.com/@marcbedd'}
+              target='_blank'
+              rel='noopener noreferrer'
+              className={accentClass}
+            >
+              <SiYoutube />
+            </a>
+          </div>
 
           {status === 'success' && (
             <p className='pt-2 text-xs font-medium text-green-600 dark:text-green-400'>

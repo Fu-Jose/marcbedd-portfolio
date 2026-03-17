@@ -148,6 +148,7 @@ const InteractivePlayer: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const rafRef = useRef<number | undefined>(undefined);
   const isSeekingRef = useRef(false);
+  const autoPlayOnLoadRef = useRef(false);
 
   const {
     isLoading,
@@ -187,6 +188,17 @@ const InteractivePlayer: React.FC = () => {
   }, []);
 
   useEffect(() => () => stopRaf(), [stopRaf]);
+
+  useEffect(() => {
+    if (!isLoading && autoPlayOnLoadRef.current) {
+      autoPlayOnLoadRef.current = false;
+      const video = videoRef.current;
+      if (!video) return;
+      void video.play().catch(() => {});
+      transportPlay(0);
+      startRaf();
+    }
+  }, [isLoading, transportPlay, startRaf]);
 
   const handleStartExperience = useCallback(async () => {
     await unlock();
@@ -241,10 +253,11 @@ const InteractivePlayer: React.FC = () => {
         video.pause();
         video.currentTime = 0;
       }
+      if (isUnlocked) autoPlayOnLoadRef.current = true;
       setStemState(buildStemState(DEMO_PLAYLIST[index].stems));
       setCurrentIndex(index);
     },
-    [currentIndex, transportStop, stopRaf],
+    [currentIndex, isUnlocked, transportStop, stopRaf],
   );
 
   const handleToggleMute = useCallback(
